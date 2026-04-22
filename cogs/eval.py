@@ -12,7 +12,7 @@ elif content.startswith("?eval"):
     if message.author.id not in DONOS:
         return
 
-    codigo = content[len(".eval"):].strip()
+    codigo = content[len("?eval"):].strip()
 
     await message.channel.send("⚙️ Executando código...")
 
