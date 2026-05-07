@@ -174,32 +174,35 @@ async def handle_command(message):
         status_manual = False
         await message.channel.send("Status automático ativado")
 
-    # ===== say =====
+    # ===== say (CORRIGIDO) =====
     elif content.startswith(f"{prefix}say"):
         try:
-            args = content.split(" ", 2)
-
-            if len(args) == 2:
-                await message.delete()
-                await message.channel.send(args[1])
+            # Pega o texto após o comando
+            corpo = content[len(f"{prefix}say"):].strip()
+            
+            if not corpo:
                 return
 
-            if args[1].isdigit():
-                canal = client.get_channel(int(args[1]))
-                texto = args[2] if len(args) > 2 else "..."
-
+            args = corpo.split(" ", 1)
+            
+            # Verifica se o primeiro argumento é um ID de canal válido (número longo)
+            if args[0].isdigit() and len(args[0]) >= 17:
+                canal_id = int(args[0])
+                canal = client.get_channel(canal_id)
+                
                 if canal:
-                    await message.delete()
-                    await canal.send(texto)
+                    # Se houver texto após o ID, envia o texto. Se não, envia "..."
+                    texto_para_enviar = args[1] if len(args) > 1 else "..."
+                    await canal.send(texto_para_enviar)
                 else:
-                    await message.channel.send("Canal não encontrado")
+                    # Canal não encontrado, envia a mensagem inteira no canal atual
+                    await message.channel.send(corpo)
             else:
-                texto = content[len(f"{prefix}say "):]
-                await message.delete()
-                await message.channel.send(texto)
+                # Não é um ID, envia o texto original no canal atual
+                await message.channel.send(corpo)
 
         except Exception as e:
-            await message.channel.send(f"Erro: {e}")
+            print(f"Erro no say: {e}")
 
 # ===== EVENTOS =====
 @client.event
@@ -220,3 +223,4 @@ if not token:
     raise Exception("TOKEN não definido")
 
 client.run(token)
+            
