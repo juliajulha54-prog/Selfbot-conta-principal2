@@ -4,6 +4,7 @@ import asyncio
 import time
 from flask import Flask
 from threading import Thread
+from discord.ext import commands
 
 # ===== WEB (Railway) =====
 app = Flask(__name__)
@@ -21,8 +22,9 @@ def start_web():
 
 start_web()
 
-# ===== DISCORD =====
-client = discord.Client(self_bot=True)
+# ===== DISCORD (commands.Bot) =====
+# Usamos commands.Bot para suporte nativo a Cogs e extensões
+bot = commands.Bot(command_prefix="?", self_bot=True)
 
 # ===== CONFIG =====
 prefix = "?"
@@ -31,14 +33,16 @@ start_time = time.time()
 # 🔥 LISTA DE IDS PERMITIDOS
 ALLOWED_IDS = [
     932012274569338981,
-    1473488490795896997, 569633804537430036, 932011766651703358
+    1473488490795896997, 
+    569633804537430036, 
+    932011766651703358
 ]
 
 status_manual = False
 
 # ===== STATUS ROTATIVO =====
 async def rotacao_status():
-    await client.wait_until_ready()
+    await bot.wait_until_ready()
     i = 0
 
     while True:
@@ -53,7 +57,7 @@ async def rotacao_status():
                 discord.Activity(type=discord.ActivityType.playing, name="Arena Breakout")
             ]
 
-            await client.change_presence(
+            await bot.change_presence(
                 status=discord.Status.dnd,
                 activity=atividades[i % len(atividades)]
             )
@@ -65,22 +69,37 @@ async def rotacao_status():
             print("Erro status:", e)
             await asyncio.sleep(5)
 
-# ===== EVENTOS =====
-@client.event
-async def on_ready():
-    print(f"🟢 Logado como {client.user} | ID: {client.user.id}")
-    client.loop.create_task(rotacao_status())
+# ===== FUNÇÃO PARA CARREGAR COGS =====
+async def load_extensions():
+    if os.path.exists("./cogs"):
+        for filename in os.listdir("./cogs"):
+            if filename.endswith(".py"):
+                cog_name = f"cogs.{filename[:-3]}"
+                try:
+                    await bot.load_extension(cog_name)
+                    print(f"📦 Cog carregada: {cog_name}")
+                except Exception as e:
+                    print(f"❌ Erro ao carregar {cog_name}: {e}")
 
-# ===== HANDLER DE COMANDO =====
+# ===== EVENTOS =====
+@bot.event
+async def on_ready():
+    print(f"🟢 Logado como {bot.user} | ID: {bot.user.id}")
+    await load_extensions()
+    bot.loop.create_task(rotacao_status())
+
+# ===== HANDLER DE COMANDOS MANUAIS =====
 async def handle_command(message):
     global status_manual
 
     content = message.content.strip()
-    print("MSG:", content, "| AUTHOR:", message.author.id)
 
     # 🔒 PERMISSÃO (SEM MENSAGEM DE ERRO)
-    if message.author.id != client.user.id and message.author.id not in ALLOWED_IDS:
+    if message.author.id != bot.user.id and message.author.id not in ALLOWED_IDS:
         return
+
+    # Processa comandos registrados nas Cogs
+    await bot.process_commands(message)
 
     # ===== EVAL =====
     if content.startswith(f"{prefix}eval"):
@@ -111,7 +130,7 @@ async def handle_command(message):
             exec(exec_code, globals(), local_vars)
 
             with contextlib.redirect_stdout(stdout):
-                resultado = await local_vars["_exec"](message, client)
+                resultado = await local_vars["_exec"](message, bot)
 
             saida = stdout.getvalue()
 
@@ -161,7 +180,7 @@ async def handle_command(message):
 
             if status_arg in status_map:
                 status_manual = True
-                await client.change_presence(status=status_map[status_arg])
+                await bot.change_presence(status=status_map[status_arg])
                 await message.channel.send(f"Status: {status_arg}")
             else:
                 await message.channel.send("Status inválido")
@@ -174,10 +193,9 @@ async def handle_command(message):
         status_manual = False
         await message.channel.send("Status automático ativado")
 
-    # ===== say (CORRIGIDO) =====
+    # ===== say =====
     elif content.startswith(f"{prefix}say"):
         try:
-            # Pega o texto após o comando
             corpo = content[len(f"{prefix}say"):].strip()
             
             if not corpo:
@@ -185,33 +203,29 @@ async def handle_command(message):
 
             args = corpo.split(" ", 1)
             
-            # Verifica se o primeiro argumento é um ID de canal válido (número longo)
             if args[0].isdigit() and len(args[0]) >= 17:
                 canal_id = int(args[0])
-                canal = client.get_channel(canal_id)
+                canal = bot.get_channel(canal_id)
                 
                 if canal:
-                    # Se houver texto após o ID, envia o texto. Se não, envia "..."
                     texto_para_enviar = args[1] if len(args) > 1 else "..."
                     await canal.send(texto_para_enviar)
                 else:
-                    # Canal não encontrado, envia a mensagem inteira no canal atual
                     await message.channel.send(corpo)
             else:
-                # Não é um ID, envia o texto original no canal atual
                 await message.channel.send(corpo)
 
         except Exception as e:
             print(f"Erro no say: {e}")
 
-# ===== EVENTOS =====
-@client.event
+# ===== LISTENERS DE MENSAGENS =====
+@bot.event
 async def on_message(message):
     await handle_command(message)
 
-@client.event
+@bot.event
 async def on_message_edit(before, after):
-    if after.author.id == client.user.id:
+    if after.author.id == bot.user.id:
         return
 
     await handle_command(after)
@@ -220,7 +234,7 @@ async def on_message_edit(before, after):
 token = os.environ.get("TOKEN")
 
 if not token:
-    raise Exception("TOKEN não definido")
+    raise Exception("TOKEN não definido nas variáveis de ambiente")
 
-client.run(token)
-            
+bot.run(token)
+        
