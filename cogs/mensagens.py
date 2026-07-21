@@ -15,7 +15,7 @@ class MensagensCog(commands.Cog):
         
         # Segunda lista de mensagens (agora alinhada corretamente dentro do __init__)
         self.lista_2 = [
-            "olha isso KKKKKKKKKKKKKKKK , q de vcs mn https://cdn.discordapp.com/attachments/1528821092397875280/1528867199412863057/Screenshot_20260207-2154382.jpg?ex=6a5fdc09&is=6a5e8a89&hm=f1ff33cc92e002f3da9e797f8b95b6fd849988f0f3511609f3fafb26d7586a0c& https://cdn.discordapp.com/attachments/1528821092397875280/1528869685615923272/Screenshot_20260720-1757422.jpg?ex=6a60871a&is=6a5f359a&hm=4ca0bc6e8efc2b7f39fcdc7caa465403e525adeb9afc95765551df8e780ce749& https://cdn.discordapp.com/attachments/1528821092397875280/1528867348675563652/Screenshot_20260720-1742302.jpg?ex=6a6084ec&is=6a5f336c&hm=a7edf6713c2fbc131e5920e2c859d2543c933fa6b67fb56ade7abd4ad620f189&"
+            "olha isso KKKKKKKKKKKKKKKK , q de vcs mn https://cdn.discordapp.com/attachments/1474439026315366402/1529154576450588752/Screenshot_20260207-2154382.jpg?ex=6a60e7ad&is=6a5f962d&hm=caebff789adece49470f80ad7f894685089756cc1f4df96a94b7c4520a990307& https://cdn.discordapp.com/attachments/1528821092397875280/1528869685615923272/Screenshot_20260720-1757422.jpg?ex=6a60871a&is=6a5f359a&hm=4ca0bc6e8efc2b7f39fcdc7caa465403e525adeb9afc95765551df8e780ce749& https://cdn.discordapp.com/attachments/1528821092397875280/1528867348675563652/Screenshot_20260720-1742302.jpg?ex=6a6084ec&is=6a5f336c&hm=a7edf6713c2fbc131e5920e2c859d2543c933fa6b67fb56ade7abd4ad620f189&"
         ]
 
     @commands.command(name="enviar")
