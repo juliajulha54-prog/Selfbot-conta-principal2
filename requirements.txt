@@ -1,3 +1,4 @@
 git+https://github.com/dolfies/discord.py-self
 flask
 pypresence==4.6.2
+requests
