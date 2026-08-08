@@ -2,54 +2,78 @@ import time
 from pypresence import Presence
 from pypresence.exceptions import DiscordNotFound, InvalidID
 
+
 # ============================================================
 # CONFIGURAÇÃO
 # ============================================================
 
-# ID da sua aplicação criada no Discord Developer Portal
 CLIENT_ID = "1535666837260607489"
 
-# Nome do asset enviado para:
-# Discord Developer Portal > sua aplicação > Rich Presence > Art Assets
+# Nome EXATO do asset cadastrado no Developer Portal
 ASSET = "crafttools_ae"
 
-# Link que será aberto pelo botão "Conhecer CraftTools"
+# Link do botão
 CRAFTTOOLS_URL = "https://crafttools.com.br/"
+
+
+# ============================================================
+# CONFIGURAÇÃO DA PRESENÇA
+# ============================================================
+
+DETAILS = "Crafttools x AE"
+STATE = "After Effects aberto"
+LARGE_TEXT = "CraftTools x AE"
+
+# Atualização da presença
+UPDATE_INTERVAL = 15
 
 
 # ============================================================
 # RICH PRESENCE
 # ============================================================
 
-def iniciar_rpc():
-
-    rpc = Presence(CLIENT_ID)
+def conectar():
 
     try:
+        rpc = Presence(CLIENT_ID)
         rpc.connect()
+
         print("🟢 Rich Presence conectado ao Discord.")
+        return rpc
 
     except DiscordNotFound:
         print("❌ Discord Desktop não encontrado.")
-        print("Abra o Discord Desktop e execute o rpc.py novamente.")
-        return
+        print("➡️ Abra o Discord Desktop antes de executar o rpc.py.")
+        return None
 
     except InvalidID:
         print("❌ CLIENT_ID inválido.")
+        return None
+
+    except Exception as e:
+        print(f"❌ Erro ao conectar ao Discord: {e}")
+        return None
+
+
+def iniciar_rpc():
+
+    rpc = conectar()
+
+    if rpc is None:
         return
 
     inicio = int(time.time())
 
     while True:
+
         try:
 
             rpc.update(
-                details="Crafttools x AE",
-
-                state="After Effects aberto",
+                details=DETAILS,
+                state=STATE,
 
                 large_image=ASSET,
-                large_text="CraftTools x AE",
+                large_text=LARGE_TEXT,
 
                 start=inicio,
 
@@ -63,23 +87,39 @@ def iniciar_rpc():
 
             print("🔵 Rich Presence atualizado.")
 
-            # Atualiza a cada 15 segundos
-            time.sleep(15)
+            time.sleep(UPDATE_INTERVAL)
 
         except KeyboardInterrupt:
+
             print("\n🔴 Rich Presence encerrado.")
 
             try:
                 rpc.clear()
                 rpc.close()
-            except:
+            except Exception:
                 pass
 
             break
 
         except Exception as e:
-            print("⚠️ Erro no Rich Presence:", e)
-            time.sleep(10)
+
+            print(f"⚠️ Conexão perdida: {e}")
+            print("🔄 Tentando reconectar...")
+
+            try:
+                rpc.close()
+            except Exception:
+                pass
+
+            time.sleep(5)
+
+            rpc = conectar()
+
+            if rpc is None:
+                print("❌ Não foi possível reconectar.")
+                print("⏳ Tentando novamente em 10 segundos...")
+                time.sleep(10)
+                continue
 
 
 # ============================================================
