@@ -6,7 +6,7 @@ from pypresence import Presence
 CLIENT_ID = "1535666837260607489"
 
 # URL RAW da imagem no GitHub
-IMAGE_URL = "https://raw.githubusercontent.com/SEU_USUARIO/SEU_REPOSITORIO/main/assets/crafttools.png"
+IMAGE_URL = "https://github.com/juliajulha54-prog/Selfbot-conta-principal2/blob/3dfa67645daf07122ac494d10a603038c70c2cfa/crafttools_ae_512.png"
 
 IMAGE_PATH = "crafttools.png"
 
