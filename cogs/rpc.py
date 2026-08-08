@@ -1,66 +1,31 @@
 import time
 from pypresence import Presence
-from pypresence.exceptions import DiscordNotFound, InvalidID
-
 
 # ============================================================
-# CONFIGURAÇÃO
+# DISCORD APPLICATION
 # ============================================================
 
 CLIENT_ID = "1535666837260607489"
 
-# Nome EXATO do asset cadastrado no Developer Portal
+# Asset que você já enviou no Developer Portal
 ASSET = "crafttools_ae"
 
-# Link do botão
-CRAFTTOOLS_URL = "https://crafttools.com.br/"
-
-
-# ============================================================
-# CONFIGURAÇÃO DA PRESENÇA
-# ============================================================
-
-DETAILS = "Crafttools x AE"
-STATE = "After Effects aberto"
-LARGE_TEXT = "CraftTools x AE"
-
-# Atualização da presença
-UPDATE_INTERVAL = 15
+# Site do botão
+SITE = "https://crafttools.com.br/"
 
 
 # ============================================================
 # RICH PRESENCE
 # ============================================================
 
-def conectar():
+def main():
 
-    try:
-        rpc = Presence(CLIENT_ID)
-        rpc.connect()
+    print("🔄 Conectando ao Discord...")
 
-        print("🟢 Rich Presence conectado ao Discord.")
-        return rpc
+    rpc = Presence(CLIENT_ID)
+    rpc.connect()
 
-    except DiscordNotFound:
-        print("❌ Discord Desktop não encontrado.")
-        print("➡️ Abra o Discord Desktop antes de executar o rpc.py.")
-        return None
-
-    except InvalidID:
-        print("❌ CLIENT_ID inválido.")
-        return None
-
-    except Exception as e:
-        print(f"❌ Erro ao conectar ao Discord: {e}")
-        return None
-
-
-def iniciar_rpc():
-
-    rpc = conectar()
-
-    if rpc is None:
-        return
+    print("🟢 RPC conectado!")
 
     inicio = int(time.time())
 
@@ -69,62 +34,45 @@ def iniciar_rpc():
         try:
 
             rpc.update(
-                details=DETAILS,
-                state=STATE,
+                details="Crafttools x AE",
+                state="After Effects aberto",
 
+                # Puxa o asset diretamente da Application
                 large_image=ASSET,
-                large_text=LARGE_TEXT,
+                large_text="CraftTools x AE",
 
+                # Contador
                 start=inicio,
 
+                # Botão
                 buttons=[
                     {
                         "label": "Conhecer CraftTools",
-                        "url": CRAFTTOOLS_URL
+                        "url": SITE
                     }
                 ]
             )
 
-            print("🔵 Rich Presence atualizado.")
-
-            time.sleep(UPDATE_INTERVAL)
+            print("✅ Presença atualizada.")
+            time.sleep(15)
 
         except KeyboardInterrupt:
 
-            print("\n🔴 Rich Presence encerrado.")
+            print("\n🔴 RPC encerrado.")
 
             try:
                 rpc.clear()
                 rpc.close()
-            except Exception:
+            except:
                 pass
 
             break
 
         except Exception as e:
 
-            print(f"⚠️ Conexão perdida: {e}")
-            print("🔄 Tentando reconectar...")
-
-            try:
-                rpc.close()
-            except Exception:
-                pass
-
+            print(f"⚠️ Erro: {e}")
             time.sleep(5)
 
-            rpc = conectar()
-
-            if rpc is None:
-                print("❌ Não foi possível reconectar.")
-                print("⏳ Tentando novamente em 10 segundos...")
-                time.sleep(10)
-                continue
-
-
-# ============================================================
-# START
-# ============================================================
 
 if __name__ == "__main__":
-    iniciar_rpc()
+    main()
