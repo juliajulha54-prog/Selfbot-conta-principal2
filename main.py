@@ -40,35 +40,6 @@ ALLOWED_IDS = [
 
 status_manual = False
 
-# ===== STATUS ROTATIVO =====
-async def rotacao_status():
-    await bot.wait_until_ready()
-    i = 0
-
-    while True:
-        try:
-            if status_manual:
-                await asyncio.sleep(5)
-                continue
-
-            atividades = [
-                discord.Activity(type=discord.ActivityType.playing, name="Arena Breakout"),
-                discord.Activity(type=discord.ActivityType.playing, name="Arena Breakout"),
-                discord.Activity(type=discord.ActivityType.playing, name="Arena Breakout")
-            ]
-
-            await bot.change_presence(
-                status=discord.Status.dnd,
-                activity=atividades[i % len(atividades)]
-            )
-
-            i += 1
-            await asyncio.sleep(10)
-
-        except Exception as e:
-            print("Erro status:", e)
-            await asyncio.sleep(5)
-
 # ===== FUNÇÃO PARA CARREGAR COGS =====
 async def load_extensions():
     if os.path.exists("./cogs"):
@@ -86,7 +57,6 @@ async def load_extensions():
 async def on_ready():
     print(f"🟢 Logado como {bot.user} | ID: {bot.user.id}")
     await load_extensions()
-    bot.loop.create_task(rotacao_status())
 
 # ===== HANDLER DE COMANDOS MANUAIS =====
 async def handle_command(message):
@@ -237,4 +207,3 @@ if not token:
     raise Exception("TOKEN não definido nas variáveis de ambiente")
 
 bot.run(token)
-        
