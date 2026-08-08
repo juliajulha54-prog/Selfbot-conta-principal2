@@ -14,7 +14,7 @@ CLIENT_ID = "1535666837260607489"
 ASSET = "crafttools_ae"
 
 # Link que será aberto pelo botão "Conhecer CraftTools"
-CRAFTTOOLS_URL = "https://SEU-LINK-AQUI.com"
+CRAFTTOOLS_URL = "https://crafttools.com.br/"
 
 
 # ============================================================
